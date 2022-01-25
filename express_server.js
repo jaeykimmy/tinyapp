@@ -20,16 +20,14 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-let randomID = generateRandomString();
 app.post("/urls", (req, res) => {
+  let randomID = generateRandomString();
   urlDatabase[randomID] = req.body.longURL;
   res.redirect(`/urls/${randomID}`);
-  //console.log(req.body.longURL);  // Log the POST request body to the console
-  //res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[randomID];
+  const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
