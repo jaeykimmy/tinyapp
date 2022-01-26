@@ -6,12 +6,15 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
+        <% if(users){ %>
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        
+<% } else{ %>
+        <a class="nav-item nav-link" href="/register">Register</a>
+        <a class="nav-item nav-link" href="/login">Login</a>
+        <% } %>
        
         <% if(!users){ %>
-        <form class="form-inline" action="/login" method="POST">
         <div class="form-group mb-2">
         </div>
       </form>
