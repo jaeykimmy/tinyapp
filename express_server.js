@@ -40,9 +40,15 @@ app.post('/register', (req, res) => {
   let newUser = userID;
   users[newUser] = req.body;
   users[newUser].id = userID;
-
   console.log(req.body);
-  
+  if (req.body.email === "" || req.body.password === '') {
+    return res.status(400).send("no email or password entered");
+  }
+  for (let user in users) {
+    if (req.body.email === users[user].email) {
+      return res.status(400).send("email already registered");
+    }
+  }
   res.cookie('user_id', req.body);
   res.redirect(`/urls`);
 });
