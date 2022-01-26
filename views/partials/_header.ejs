@@ -6,7 +6,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <% if(users){ %>
+        <% if(user){ %>
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
 <% } else{ %>
@@ -14,14 +14,14 @@
         <a class="nav-item nav-link" href="/login">Login</a>
         <% } %>
        
-        <% if(!users){ %>
+        <% if(!user){ %>
         <div class="form-group mb-2">
         </div>
       </form>
       <% } else{ %>  
       <form class="form-inline" action="/logout" method="POST">
         <div class="form-group mb-2">
-          <label>Signed in at: <%= users.email %></label>
+          <label>Signed in at: <%= user.email %></label>
           <button type="logout" class="btn btn-primary">Logout</button>
         </div>
       </form>
