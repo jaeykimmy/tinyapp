@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -32,17 +33,17 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
   "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk")
   },
   "aJ48lW": {
     id: "aJ48lW",
     email: "admin@gmail.com",
-    password: "admin"
+    password: bcrypt.hashSync("admin")
   }
 };
 
@@ -63,7 +64,7 @@ app.post('/register', (req, res) => {
   users[userID] = {
     id: userID,
     email: req.body.email,
-    password: req.body.password
+    password: bcrypt.hashSync(req.body.password, 10)
   };
   // let newUser = userID;
   // users[newUser] = req.body;
@@ -93,7 +94,7 @@ app.post('/login', (req, res) => {
   console.log(users);
   for (let user in users) {
     if (req.body.email === users[user].email) {
-      if (req.body.password !== users[user].password) {
+      if (!bcrypt.compareSync(req.body.password, users[user].password)) {
         return res.status(403).send("non-matching password");
       } else {
         res.cookie('user_id', users[user].id);
@@ -219,6 +220,10 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+});
+
+app.get("/users.json", (req, res) => {
+  res.json(users);
 });
 
 app.listen(PORT, () => {
