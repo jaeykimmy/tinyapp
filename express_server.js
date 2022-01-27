@@ -5,7 +5,8 @@ const bodyParser = require("body-parser");
 const bcrypt = require('bcryptjs');
 const cookieSession = require('cookie-session');
 const { restart } = require("nodemon");
-const {generateRandomString, getUserByEmail, urlsForUser} = require('./helpers');
+const { generateRandomString, urlsForUser } = require('./helpers');
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(cookieSession({
@@ -184,7 +185,7 @@ app.get("/urls", (req, res) => {
     return res.status(403).send("register or log in please");
   } else {
     const templateVars = {
-      urls: urlsForUser(req.session['user_id']),
+      urls: urlsForUser(req.session['user_id'], urlDatabase),
       user: users[req.session['user_id']]
     };
     //console.log(users);
@@ -198,14 +199,16 @@ app.get("/urls/:shortURL", (req, res) => {
   if (!req.session['user_id']) {
     return res.status(403).send("register or log in please");
   } else {
-    console.log(urlDatabase[req.params.shortURL].longURL);
-    console.log(urlDatabase[req.params.shortURL]);
+    console.log('short url:', req.params.shortURL);
+    console.log('long url:', urlDatabase[req.params.shortURL].longURL);
+    console.log('url object:', urlDatabase[req.params.shortURL]);
+    //console.log('urldatabase:', urlDatabase);
     const templateVars = {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
-      urls: urlDatabase,
       user: users[req.session['user_id']]
     };
+    //console.log(templateVars.urls);
     res.render("urls_show", templateVars);
   }
 });
