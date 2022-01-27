@@ -89,7 +89,8 @@ app.post("/urls", (req, res) => {
   if (req.cookies['user_id'] === undefined) {
     return res.status(403).send("not signed in");
   } else {
-    urlDatabase[randomID] = req.body.longURL;
+    console.log(req.body.longURL);
+    urlDatabase[randomID].longURL = req.body.longURL;
     res.redirect(`/urls/${randomID}`);
   }
 });
@@ -102,13 +103,21 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   //console.log(urlDatabase[req.params.shortURL]);
   //console.log(req.body.longURL);
-  urlDatabase[req.params.shortURL]['longURL'] = req.body.longURL;
+  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+  console.log(urlDatabase[req.params.shortURL]);
+  console.log(req.body.longURL);
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  console.log('shorturl', req.params);
+  console.log(Object.keys(urlDatabase));
+  if (Object.keys(urlDatabase).includes(req.params.shortURL)) {
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    res.redirect(longURL);
+  } else {
+    return res.status(403).send("short url doesnt exist");
+  }
 });
 
 app.get("/register", (req, res) => {
@@ -141,11 +150,13 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  //console.log(urlDatabase);
   const templateVars = {
     urls: urlDatabase,
     //users: req.cookies['user_id']
     user: users[req.cookies['user_id']]
   };
+  console.log(templateVars);
   //console.log('urls', templateVars);
   return res.render('urls_index', templateVars);
 });
@@ -153,7 +164,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     urls: urlDatabase,
     user: users[req.cookies['user_id']]
   };
