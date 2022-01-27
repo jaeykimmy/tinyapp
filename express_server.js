@@ -134,13 +134,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   //console.log(urlDatabase[req.params.shortURL]);
   //console.log(req.body.longURL);
-  urlDatabase[req.params.shortURL] = {
-    longURL: req.body.longURL,
-    userID: req.cookies['user_id']
-  };
-  console.log(urlDatabase[req.params.shortURL]);
-  //console.log(req.body.longURL);
-  res.redirect(`/urls/${req.params.shortURL}`);
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === req.cookies['user_id']) {
+      urlDatabase[req.params.shortURL] = {
+        longURL: req.body.longURL,
+        userID: req.cookies['user_id']
+      };
+      return res.redirect(`/urls/${req.params.shortURL}`);
+    }
+  }
+  return res.status(403).send("you cannot edit someone elses url");
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -185,25 +188,33 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls", (req, res) => {
   //console.log(urlDatabase);
-  const templateVars = {
-    urls: urlDatabase,
-    user: users[req.cookies['user_id']]
-  };
-  //console.log(templateVars);
-  //console.log('urls', templateVars);
-  return res.render('urls_index', templateVars);
+  if (!Object.keys(users).includes(req.cookies['user_id'])) {
+    return res.status(403).send("not signed in");
+  } else {
+    const templateVars = {
+      urls: urlDatabase,
+      user: users[req.cookies['user_id']]
+    };
+    //console.log(templateVars);
+    //console.log('urls', templateVars);
+    return res.render('urls_index', templateVars);
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  console.log(urlDatabase[req.params.shortURL].longURL);
-  console.log(urlDatabase[req.params.shortURL]);
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    urls: urlDatabase,
-    user: users[req.cookies['user_id']]
-  };
-  res.render("urls_show", templateVars);
+  if (!Object.keys(users).includes(req.cookies['user_id'])) {
+    return res.status(403).send("not signed in");
+  } else {
+    console.log(urlDatabase[req.params.shortURL].longURL);
+    console.log(urlDatabase[req.params.shortURL]);
+    const templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      urls: urlDatabase,
+      user: users[req.cookies['user_id']]
+    };
+    res.render("urls_show", templateVars);
+  }
 });
 
 app.get("/urls.json", (req, res) => {
