@@ -6,13 +6,13 @@ const bodyParser = require("body-parser");
 const bcrypt = require('bcryptjs');
 const cookieSession = require('cookie-session');
 const { restart } = require("nodemon");
-const {generateRandomString, getUserByEmail, urlsForUser} = require('./helper');
+const {generateRandomString, getUserByEmail, urlsForUser} = require('./helpers');
 app.use(bodyParser.urlencoded({ extended: true }));
 //app.use(cookieParser());
 app.set("view engine", "ejs");
 app.use(cookieSession({
   name: 'session',
-  keys: ['jaeyoungkim'],
+  keys: ['wadjhbasybdejhc'],
   maxAge: 24 * 60 * 60 * 1000
 }));
 
