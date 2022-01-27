@@ -38,6 +38,11 @@ const users = {
     id: "user2RandomID",
     email: "user2@example.com",
     password: "dishwasher-funk"
+  },
+  "aJ48lW": {
+    id: "aJ48lW",
+    email: "admin@gmail.com",
+    password: "admin"
   }
 };
 
@@ -72,7 +77,7 @@ app.post('/register', (req, res) => {
     if (users[user].email === req.body.email) {
       return res.status(400).send("email already registered");
     } else {
-      res.cookie('user_id', users[userID].id);
+      res.cookie('user_id', userID);
       return res.redirect(`/urls`);
     }
   }
@@ -107,20 +112,32 @@ app.post("/urls", (req, res) => {
   } else {
     urlDatabase[randomID] = {
       longURL: req.body.longURL,
+      userID: req.cookies['user_id']
     };
     res.redirect(`/urls/${randomID}`);
   }
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect(`/urls`);
+//makes sure appropriate user is using the delete url function
+  for (let url in urlDatabase) {
+    console.log('1', urlDatabase[url].userID);
+    console.log('2', req.cookies['user_id']);
+    if (urlDatabase[url].userID === req.cookies['user_id']) {
+      delete urlDatabase[req.params.shortURL];
+      return res.redirect(`/urls`);
+    }
+  }
+  return res.status(403).send("you cannot delete someone elses url");
 });
 
 app.post("/urls/:shortURL", (req, res) => {
   //console.log(urlDatabase[req.params.shortURL]);
   //console.log(req.body.longURL);
-  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+  urlDatabase[req.params.shortURL] = {
+    longURL: req.body.longURL,
+    userID: req.cookies['user_id']
+  };
   console.log(urlDatabase[req.params.shortURL]);
   //console.log(req.body.longURL);
   res.redirect(`/urls/${req.params.shortURL}`);
@@ -168,10 +185,8 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls", (req, res) => {
   //console.log(urlDatabase);
-  let userURLs = urlsForUser(req.cookies['user']);
   const templateVars = {
     urls: urlDatabase,
-    userURLs: userURLs,
     user: users[req.cookies['user_id']]
   };
   //console.log(templateVars);
@@ -180,7 +195,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  //console.log(urlDatabase[req.params.shortURL].longURL);
+  console.log(urlDatabase[req.params.shortURL].longURL);
   console.log(urlDatabase[req.params.shortURL]);
   const templateVars = {
     shortURL: req.params.shortURL,
