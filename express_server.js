@@ -18,6 +18,16 @@ const generateRandomString = function() {
   return result;
 };
 
+const urlsForUser = function(id) {
+  let finalURLS = {};
+  for (let url in urlDatabase) {
+    if (id === urlDatabase[url].user_id) {
+      finalURLS[url] = urlDatabase[url];
+    }
+  }
+  return finalURLS;
+};
+
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -44,10 +54,16 @@ const urlDatabase = {
 
 app.post('/register', (req, res) => {
   let userID = generateRandomString();
-  let newUser = userID;
-  users[newUser] = req.body;
-  users[newUser].id = userID;
-  console.log(users);
+  //put user information in an object
+  users[userID] = {
+    id: userID,
+    email: req.body.email,
+    password: req.body.password
+  };
+  // let newUser = userID;
+  // users[newUser] = req.body;
+  // users[newUser].id = userID;
+  // console.log(users);
   //console.log(req.body);
   if (req.body.email === "" || req.body.password === '') {
     return res.status(400).send("no email or password entered");
@@ -56,7 +72,7 @@ app.post('/register', (req, res) => {
     if (users[user].email === req.body.email) {
       return res.status(400).send("email already registered");
     } else {
-      res.cookie('user_id', users[newUser].id);
+      res.cookie('user_id', users[userID].id);
       return res.redirect(`/urls`);
     }
   }
@@ -104,11 +120,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   //console.log(urlDatabase[req.params.shortURL]);
   //console.log(req.body.longURL);
-  urlDatabase[req.params.shortURL] = {
-    longURL: req.body.longURL
-  };
+  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
   console.log(urlDatabase[req.params.shortURL]);
-  console.log(req.body.longURL);
+  //console.log(req.body.longURL);
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
@@ -154,9 +168,10 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls", (req, res) => {
   //console.log(urlDatabase);
+  let userURLs = urlsForUser(req.cookies['user']);
   const templateVars = {
     urls: urlDatabase,
-    //users: req.cookies['user_id']
+    userURLs: userURLs,
     user: users[req.cookies['user_id']]
   };
   //console.log(templateVars);
@@ -165,7 +180,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  console.log(urlDatabase[req.params.shortURL].longURL);
+  //console.log(urlDatabase[req.params.shortURL].longURL);
   console.log(urlDatabase[req.params.shortURL]);
   const templateVars = {
     shortURL: req.params.shortURL,
