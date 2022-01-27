@@ -85,12 +85,13 @@ app.post('/login', (req, res) => {
 
 app.post("/urls", (req, res) => {
   let randomID = generateRandomString();
-  console.log('userid', req.cookies['user_id']);
+  //console.log('userid', req.cookies['user_id']);
   if (req.cookies['user_id'] === undefined) {
     return res.status(403).send("not signed in");
   } else {
-    console.log(req.body.longURL);
-    urlDatabase[randomID].longURL = req.body.longURL;
+    urlDatabase[randomID] = {
+      longURL: req.body.longURL,
+    };
     res.redirect(`/urls/${randomID}`);
   }
 });
@@ -103,7 +104,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   //console.log(urlDatabase[req.params.shortURL]);
   //console.log(req.body.longURL);
-  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+  urlDatabase[req.params.shortURL] = {
+    longURL: req.body.longURL
+  };
   console.log(urlDatabase[req.params.shortURL]);
   console.log(req.body.longURL);
   res.redirect(`/urls/${req.params.shortURL}`);
@@ -156,12 +159,14 @@ app.get("/urls", (req, res) => {
     //users: req.cookies['user_id']
     user: users[req.cookies['user_id']]
   };
-  console.log(templateVars);
+  //console.log(templateVars);
   //console.log('urls', templateVars);
   return res.render('urls_index', templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  console.log(urlDatabase[req.params.shortURL].longURL);
+  console.log(urlDatabase[req.params.shortURL]);
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
@@ -173,14 +178,6 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-app.get("/", (req, res) => {
-  res.send("Hello!");
 });
 
 app.listen(PORT, () => {
