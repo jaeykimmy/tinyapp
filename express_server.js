@@ -66,12 +66,11 @@ app.post('/register', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  req.session = null;
+  req.session['user_id'] = null;
   res.redirect(`/login`);
 });
 
 app.post('/login', (req, res) => {
-  console.log(users);
   for (let user in users) {
     if (req.body.email === users[user].email) {
       if (!bcrypt.compareSync(req.body.password, users[user].password)) {
@@ -101,8 +100,6 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
 //makes sure appropriate user is using the delete url function
   for (let url in urlDatabase) {
-    console.log('1', urlDatabase[url].userID);
-    console.log('2', req.session['user_id']);
     if (urlDatabase[url].userID === req.session['user_id']) {
       delete urlDatabase[req.params.shortURL];
       return res.redirect(`/urls`);
@@ -174,9 +171,6 @@ app.get("/urls", (req, res) => {
       urls: urlsForUser(req.session['user_id'], urlDatabase),
       user: users[req.session['user_id']]
     };
-    //console.log(users);
-    //console.log(templateVars);
-    //console.log('urls', templateVars);
     return res.render('urls_index', templateVars);
   }
 });
