@@ -52,11 +52,6 @@ app.post('/register', (req, res) => {
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 10)
   };
-  // let newUser = userID;
-  // users[newUser] = req.body;
-  // users[newUser].id = userID;
-  // console.log(users);
-  //console.log(req.body);
   if (req.body.email === "" || req.body.password === '') {
     return res.status(400).send("no email or password entered");
   }
@@ -71,7 +66,6 @@ app.post('/register', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  //console.log(req);
   req.session = null;
   res.redirect(`/login`);
 });
@@ -93,7 +87,6 @@ app.post('/login', (req, res) => {
 
 app.post("/urls", (req, res) => {
   let randomID = generateRandomString();
-  //console.log('userid', req.cookies['user_id']);
   if (!req.session['user_id']) {
     return res.status(403).send("not signed in");
   } else {
@@ -119,9 +112,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  //console.log(urlDatabase[req.params.shortURL]);
-  //console.log(req.body.longURL);
-  console.log(req.session['user_id']);
   if (!req.session['user_id']) {
     return res.status(403).send("register or log in please");
   } else {
@@ -139,8 +129,6 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  console.log('shorturl', req.params);
-  console.log(Object.keys(urlDatabase));
   if (Object.keys(urlDatabase).includes(req.params.shortURL)) {
     const longURL = urlDatabase[req.params.shortURL].longURL;
     res.redirect(longURL);
@@ -179,8 +167,6 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  //console.log(urlDatabase);
-  console.log(req.session['user_id']);
   if (!req.session['user_id']) {
     return res.status(403).send("register or log in please");
   } else {
@@ -199,16 +185,11 @@ app.get("/urls/:shortURL", (req, res) => {
   if (!req.session['user_id']) {
     return res.status(403).send("register or log in please");
   } else {
-    console.log('short url:', req.params.shortURL);
-    console.log('long url:', urlDatabase[req.params.shortURL].longURL);
-    console.log('url object:', urlDatabase[req.params.shortURL]);
-    //console.log('urldatabase:', urlDatabase);
     const templateVars = {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
       user: users[req.session['user_id']]
     };
-    //console.log(templateVars.urls);
     res.render("urls_show", templateVars);
   }
 });
