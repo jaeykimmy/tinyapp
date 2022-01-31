@@ -135,19 +135,27 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = {
-    urls: urlDatabase,
-    user: users[req.session['user_id']]
-  };
-  res.render("register",templateVars);
+  if (req.session['user_id']) {
+    res.redirect(`/urls`);
+  } else {
+    const templateVars = {
+      urls: urlDatabase,
+      user: users[req.session['user_id']]
+    };
+    res.render("register", templateVars);
+  }
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = {
-    urls: urlDatabase,
-    user: users[req.session['user_id']]
-  };
-  res.render("login",templateVars);
+  if (req.session['user_id']) {
+    res.redirect(`/urls`);
+  } else {
+    const templateVars = {
+      urls: urlDatabase,
+      user: users[req.session['user_id']]
+    };
+    res.render("login", templateVars);
+  }
 });
 
 app.get("/urls/new", (req, res) => {
