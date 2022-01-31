@@ -182,21 +182,19 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  console.log(urlDatabase[req.params.shortURL].userID);
-  console.log(req.session['user_id']);
-  if (users[req.session['user_id']]) {
+  if (urlDatabase[req.params.shortURL]) {
     if (req.session['user_id'] === urlDatabase[req.params.shortURL].userID) {
-      return res.status(403).send("this is not your URL, you cannot access it");
-    } else {
       const templateVars = {
         shortURL: req.params.shortURL,
         longURL: urlDatabase[req.params.shortURL].longURL,
         user: users[req.session['user_id']]
       };
       res.render("urls_show", templateVars);
+    } else {
+      return res.status(403).send("this is not your URL, you cannot access it");
     }
   } else {
-    return res.status(403).send("register or log in please");
+    return res.status(403).send("url doesnt exist");
   }
 });
 
