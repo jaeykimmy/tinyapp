@@ -66,7 +66,7 @@ app.post('/register', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  req.session['user_id'] = null;
+  req.session = null;
   res.redirect(`/login`);
 });
 
@@ -155,8 +155,8 @@ app.get("/urls/new", (req, res) => {
     urls: urlDatabase,
     user: users[req.session['user_id']]
   };
-  if (req.session['user_id'] === undefined) {
-    res.redirect('/urls');
+  if (!req.session['user_id']) {
+    res.redirect('/login');
   } else {
     res.render("urls_new", templateVars);
   }
