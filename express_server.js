@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const bcrypt = require('bcryptjs');
 const cookieSession = require('cookie-session');
 const { restart } = require("nodemon");
-const { generateRandomString, urlsForUser } = require('./helpers');
+const { generateRandomString, urlsForUser, getUserByEmail } = require('./helpers');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
@@ -45,23 +45,21 @@ const urlDatabase = {
 };
 
 app.post('/register', (req, res) => {
-  let userID = generateRandomString();
-  //put user information in an object
-  users[userID] = {
-    id: userID,
-    email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 10)
-  };
-  if (req.body.email === "" || req.body.password === '') {
+  if (!req.body.email || !req.body.password) {
     return res.status(400).send("no email or password entered");
   }
-  for (let user in users) {
-    if (users[user].email === req.body.email) {
-      return res.status(400).send("email already registered");
-    } else {
-      req.session['user_id'] = userID;
-      return res.redirect(`/urls`);
-    }
+  if (getUserByEmail(req.body.email, users)) {
+    return res.status(400).send("email already registered, try another");
+  } else {
+    let userID = generateRandomString();
+    //put user information in an object
+    users[userID] = {
+      id: userID,
+      email: req.body.email,
+      password: bcrypt.hashSync(req.body.password, 10)
+    };
+    req.session['user_id'] = userID;
+    return res.redirect(`/urls`);
   }
 });
 
